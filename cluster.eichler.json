@@ -1,0 +1,18 @@
+{
+  "__default__": {
+    "mem": "1G",
+    "cpu": "1",
+    "rt": "00:30:00",
+    "params": ""
+  },
+  "bax2bam_md5_record": {
+    "mem": "1G",
+    "cpu": "1",
+    "rt": "2:00:00"
+  },
+  "bax2bam_to_bam": {
+    "mem": "2G",
+    "cpu": "1",
+    "rt": "8:00:00"
+  }
+}

@@ -1,0 +1,111 @@
+### Base Imports ###
+
+import os
+import sys
+import tempfile
+
+import pandas as pd
+import numpy as np
+
+
+### Config ###
+
+import json
+
+CONFIG_FILE_NAME = 'config.json'
+
+with open(CONFIG_FILE_NAME, 'r') as in_file:
+	config = json.load(in_file)
+
+
+
+### Set locations ###
+
+RULES_DIR = '/net/eichler/vol27/projects/structural_variation/nobackups/pipelines/pbsv/201809/rules'
+PIPELINE_DIR = os.path.dirname(RULES_DIR)
+
+WORKING_DIR = os.getcwd()
+
+sys.path.append(PIPELINE_DIR)
+
+
+### Manual session init (not in pipeline) ###
+
+from snakemake import shell
+from snakemake.io import expand
+from snakemake.io import Namedlist
+
+import analib.sm
+
+nlset = analib.sm.named_list_set
+
+wildcards = Namedlist()
+input = Namedlist()
+output = Namedlist()
+params = Namedlist()
+
+def temp(filename):
+    return filename
+
+def touch(filename):
+    return filename
+
+
+### Init ##
+
+shell.prefix('set -euo pipefail; ')
+
+PROCESS_ENV = os.environ.copy()
+
+
+
+### Read sample table ###
+
+SAMPLE_TABLE_FILE = os.path.join(WORKING_DIR, 'samples.tab')
+SAMPLE_TABLE_COLUMNS = ['SAMPLE', 'FOFN']
+
+# Check for file
+if not os.path.exists(SAMPLE_TABLE_FILE):
+    raise RuntimeError('Missing sample table: {}'.format(SAMPLE_TABLE_FILE))
+
+# Read
+SAMPLE_TABLE = pd.read_table(SAMPLE_TABLE_FILE, header=0)
+
+# Check for missing columns
+missing_cols = [col for col in SAMPLE_TABLE_COLUMNS if col not in SAMPLE_TABLE.columns]
+
+if missing_cols:
+    raise RuntimeError('Missing sample table column(s) "{}": {}'.format(', '.join(missing_cols), SAMPLE_TABLE_FILE))
+
+del(missing_cols)
+
+SAMPLE_TABLE.set_index('SAMPLE', inplace=True, drop=False)
+SAMPLE_TABLE = SAMPLE_TABLE.loc[:, SAMPLE_TABLE_COLUMNS]
+SAMPLE_TABLE.set_index('SAMPLE', inplace=True, drop=False)
+
+# Check for duplicate sample names
+if len(set(SAMPLE_TABLE['SAMPLE'])) != SAMPLE_TABLE.shape[0]:
+    raise RuntimeError('Found duplicate sample names in sample table: {}'.format(SAMPLE_TABLE_FILE))
+
+
+### Temp dir ###
+
+TEMP_DIR = os.path.abspath('./temp')
+
+
+### Set include flag ###
+
+INCLUDE_SNAKEFILE = True
+   
+
+
+### Scratch ###
+
+wildcards = Namedlist()
+
+nlset(wildcards, 'sample', '14455.p1')
+nlset(wildcards, 'movie', '0')
+nlset(wildcards, 'chrom', 'chr1')
+
+
+call/svsig/14455.p1/movie_0/discover_chr21.svsig.gz

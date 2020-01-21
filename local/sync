@@ -1,0 +1,3 @@
+# Synchronize a local copy of this project with cluster storage
+
+rsync -azv --delete --exclude-from local/sync.ignore . nx:/net/eichler/vol26/7200/software/pipelines/bax2bam/201910

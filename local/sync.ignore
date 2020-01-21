@@ -1,0 +1,9 @@
+/.bkignore
+/.idea
+/.snakemake
+/.git
+/.gitignore
+/local
+/log
+/temp
+
